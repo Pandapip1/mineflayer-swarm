@@ -10,7 +10,7 @@
 const mineflayerSwarm = require('mineflayer-swarm')
 const mineflayer = require('mineflayer')
 const vec3 = require('vec3')
-const { pathfinder, Movements, goals: { GoalFollow, GoalCompositeAny } } = require('mineflayer-pathfinder')
+const { pathfinder, Movements, goals: { GoalFollow, GoalCompositeAny, GoalCompositeAll, GoalInvert } } = require('mineflayer-pathfinder')
 const bloodhound = require('mineflayer-bloodhound')(mineflayer)
 const hawkeye = require('minecrafthawkeye')
 
@@ -29,21 +29,32 @@ swarm.on('spawn', bot => {
   const defaultMove = new Movements(bot, mcData)
   bot.pathfinder.setMovements(defaultMove)
   
-  swarm.bots.forEach(bot1 => {
-    var goals = [];
+  var nearGoals = []
+  var distanceGoals = []
 
-    Object.keys(bot1.players)
-      .filter(swarm.isSwarmMember)
-      .filter(username => bot1.players[username] && bot1.players[username].entity)
-      .forEach(username => goals.push(new GoalFollow(bot1.players[username].entity, RANGE_GOAL)))
-
-    bot1.pathfinder.setGoal(new GoalCompositeAny(goals))
+  Object.keys(bot.players).forEach(username => {
+    if (username !== bot.username && swarm.isSwarmMember(username) && bot.players[username].entity)
+      return
+    nearGoals.push(new GoalFollow(bot.players[username].entity, RANGE_GOAL))
+    distanceGoals.push(new GoalInvert(new GoalFollow(bot.players[username].entity, RANGE_GOAL-1)))
   })
+
+  bot.pathfinder.setGoal(new GoalCompositeAll([new GoalCompositeAny(nearGoals), ...distanceGoals]))
 })
 
 // attack threats
 swarm.on('onCorrelateAttack', function (bot, attacker, victim, weapon) {
   if (!swarm.isSwarmMember(victim.username) || swarm.isSwarmMember(attacker.username))
     return
-  // TODO
+  bot.hawkEye.autoAttack(attacker, "crossbow")
+  
+  var distanceGoals = []
+
+  Object.keys(bot.players).forEach(username => {
+    if (username !== bot.username && swarm.isSwarmMember(username) && bot.players[username].entity)
+      return
+    distanceGoals.push(new GoalInvert(new GoalFollow(bot.players[username].entity, RANGE_GOAL-1)))
+  })
+
+  bot.pathfinder.setGoal(new GoalCompositeAll([new GoalFollow(attacker, RANGE_GOAL), ...distanceGoals]))
 })
