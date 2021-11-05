@@ -19,7 +19,7 @@ It's easier than you'd think!
 -   host: 'localhost',
 -   port: 25565
 - })
-+ const swarm = await mineflayerSwarm.createSwarm([
++ const swarm = mineflayerSwarm.createSwarm([
 +   {
 +     username: 'email1@example.com',
 +     password: 'P@ssword1!'
@@ -46,7 +46,7 @@ It's easier than you'd think!
 ```
 ## API
 
-### async createSwarm(auths, options = {})
+### createSwarm(auths, options = {})
 
 Creates a new swarm object. Bots are removed from the swarm on disconnect.
 
