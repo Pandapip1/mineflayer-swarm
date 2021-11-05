@@ -6,7 +6,7 @@
  */
 const mineflayerSwarm = require('mineflayer-swarm')
 
-const swarm = await mineflayerSwarm.createSwarm(require('./auth.json'), {
+const swarm = mineflayerSwarm.createSwarm(require('./auth.json'), {
   host: 'localhost',
   port: 25565
 })
