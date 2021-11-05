@@ -9,11 +9,14 @@ const { EventEmitter } = require('events')
 const assert = require('assert')
 
 async function createSwarm (auths, options = {}) {
+  // create swarm object
   const swarm = new EventEmitter()
+
   // properties
   swarm.bots = []
   swarm.plugins = []
-  // methods
+
+  // general methods
   swarm.addSwarmMember = async function (auth) {
     const bot = mineflayer.createBot({ ...options, ...auth })
     bot.my_opts = { ...options, ...auth }
@@ -30,13 +33,15 @@ async function createSwarm (auths, options = {}) {
       return res
     }))
   }
+
+  // plugin methods
   swarm.loadPlugin = function (plugin) {
     assert.ok(typeof plugin === 'function', 'plugin needs to be a function')
 
     if (swarm.hasPlugin(plugin)) {
       return
     }
-    
+
     swarm.plugins.push(plugin)
 
     swarm.bots.forEach(bot => {
@@ -53,12 +58,15 @@ async function createSwarm (auths, options = {}) {
   swarm.hasPlugin = function (plugin) {
     return swarm.plugins.indexOf(plugin) >= 0
   }
+
   // init swarm
   auths.forEach(swarm.addSwarmMember)
+
   // remove disconnected members
   swarm.on('end', bot => {
     swarm.bots = swarm.bots.filter(x => bot.username !== x.username)
   })
+
   // plugin injection
   swarm.on('inject_allowed', bot => {
     bot.inject_allowed = true
@@ -66,7 +74,7 @@ async function createSwarm (auths, options = {}) {
       plugin(bot, options)
     })
   })
-  
+
   return swarm
 }
 
