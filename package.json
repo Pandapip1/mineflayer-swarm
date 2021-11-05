@@ -1,7 +1,7 @@
 {
-  "name": "prismarine-template",
+  "name": "mineflayer-swarm",
   "version": "1.0.0",
-  "description": "A template repository to make it easy to create new prismarine repo",
+  "description": "Allows you to control an entire mineflayer bot swarm with minimal additional code",
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose",
@@ -11,21 +11,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PrismarineJS/prismarine-template.git"
+    "url": "git+https://github.com/Pandapip1/mineflayer-swarm.git"
   },
   "keywords": [
     "prismarine",
-    "template"
+    "mineflayer",
+    "minecraft",
+    "bot",
+    "swarm"
   ],
-  "author": "Romain Beaumont",
+  "author": "Pandapip1",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PrismarineJS/prismarine-template/issues"
+    "url": "https://github.com/Pandapip1/mineflayer-swarm/issues"
   },
-  "homepage": "https://github.com/PrismarineJS/prismarine-template#readme",
+  "homepage": "https://github.com/Pandapip1/mineflayer-swarm#readme",
   "devDependencies": {
     "jest": "^27.0.4",
-    "prismarine-template": "file:.",
+    "mineflayer-swarm": "file:.",
     "standard": "^16.0.1"
   }
 }
