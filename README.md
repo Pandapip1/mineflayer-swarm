@@ -10,8 +10,8 @@ Allows you to control an entire [mineflayer](https://github.com/PrismarineJS/min
 It's easier than you'd think!
 
 ```diff
-const mineflayer = require('mineflayer')
-+ const { createSwarm } = require('mineflayer-swarm')
+- const mineflayer = require('mineflayer')
++ const mineflayerSwarm = require('mineflayer-swarm')
 
 - const bot = mineflayer.createBot({
 -   username: 'email0@example.com',
@@ -19,7 +19,7 @@ const mineflayer = require('mineflayer')
 -   host: 'localhost',
 -   port: 25565
 - })
-+ const swarm = createSwarm([
++ const swarm = await mineflayerSwarm.createSwarm([
 +   {
 +     username: 'email1@example.com',
 +     password: 'P@ssword1!'
