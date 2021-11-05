@@ -8,7 +8,7 @@ const mineflayer = require('mineflayer')
 const { EventEmitter } = require('events')
 const assert = require('assert')
 
-async function createSwarm (auths, options = {}) {
+function createSwarm (auths, options = {}) {
   // create swarm object
   const swarm = new EventEmitter()
 
