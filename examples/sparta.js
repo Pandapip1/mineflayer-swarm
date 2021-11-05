@@ -4,7 +4,7 @@
  *
  * For example, here is a complicated bot using mineflayer-pathfinder,
  * mineflayer-bloodhound, and minecraftHawkEye to create a swarm
- * that attacks as a group when 
+ * that attacks as a group when attacked.
  */
 
 const mineflayerSwarm = require('mineflayer-swarm')
@@ -28,8 +28,8 @@ swarm.on('spawn', bot => {
   const defaultMove = new Movements(bot, mcData)
   bot.pathfinder.setMovements(defaultMove)
 
-  let nearGoals = []
-  let distanceGoals = []
+  const nearGoals = []
+  const distanceGoals = []
 
   Object.keys(bot.players).forEach(username => {
     if (username !== bot.username && swarm.isSwarmMember(username) && bot.players[username].entity) return
@@ -42,11 +42,10 @@ swarm.on('spawn', bot => {
 
 // attack threats
 swarm.on('onCorrelateAttack', function (bot, attacker, victim, weapon) {
-  if (!swarm.isSwarmMember(victim.username) || swarm.isSwarmMember(attacker.username))
-    return
+  if (!swarm.isSwarmMember(victim.username) || swarm.isSwarmMember(attacker.username)) return
   bot.hawkEye.autoAttack(attacker, 'crossbow')
 
-  let distanceGoals = []
+  const distanceGoals = []
 
   Object.keys(bot.players).forEach(username => {
     if (username !== bot.username && swarm.isSwarmMember(username) && bot.players[username].entity) return
