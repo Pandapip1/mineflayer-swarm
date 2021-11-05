@@ -67,4 +67,6 @@ async function createSwarm(auths, options = {}){
   return swarm
 }
 
-module.exports = { 
+module.exports = {
+  createSwarm
+}
