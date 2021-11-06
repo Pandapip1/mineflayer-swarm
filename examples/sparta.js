@@ -32,7 +32,7 @@ swarm.on('spawn', bot => {
   const distanceGoals = []
 
   Object.keys(bot.players).forEach(username => {
-    if (username !== bot.username && swarm.isSwarmMember(username) && bot.players[username].entity) return
+    if (username === bot.username || !swarm.isSwarmMember(username) || !bot.players[username].entity) return
     nearGoals.push(new GoalFollow(bot.players[username].entity, RANGE_GOAL))
     distanceGoals.push(new GoalInvert(new GoalFollow(bot.players[username].entity, RANGE_GOAL - 1)))
   })
