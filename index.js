@@ -25,15 +25,15 @@ function createSwarm (auths, options = {}) {
     bot.my_opts = { ...options, ...auth }
     // monkey patch bot.emit
     const oldEmit = bot.emit
-    bot.emit = function () {
-      swarm.emit(...arguments)
+    bot.emit = function (ns, ...params) {
+      swarm.emit(ns, bot, ...params)
       oldEmit.apply(bot, arguments)
     }
     // add bot to swarm
     swarm.bots.push(bot)
   }
   swarm.isSwarmMember = function (username) {
-    return swarm.bots.any(bot => bot.username === username)
+    return swarm.bots.some(bot => bot.username === username)
   }
   swarm.execAll = async function (fun) {
     return await Promise.all(swarm.bots.map(async bot => {
