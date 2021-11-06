@@ -18,9 +18,16 @@ function createSwarm (auths, options = {}) {
 
   // general methods
   swarm.addSwarmMember = async function (auth) {
+    // create bot and save its options
     const bot = mineflayer.createBot({ ...options, ...auth })
     bot.my_opts = { ...options, ...auth }
-    bot.onAny(swarm.emit) // nice shortcut
+    // monkey patch bot.emit
+    const oldEmit = bot.emit
+    bot.emit = function() {
+      swarm.emit(...arguments)
+      oldEmit.apply(bot, arguments)
+    }
+    // add bot to swarm
     swarm.bots.push(bot)
   }
   swarm.isSwarmMember = function (username) {
