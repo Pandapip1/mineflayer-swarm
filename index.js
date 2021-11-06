@@ -23,7 +23,7 @@ function createSwarm (auths, options = {}) {
     bot.my_opts = { ...options, ...auth }
     // monkey patch bot.emit
     const oldEmit = bot.emit
-    bot.emit = function() {
+    bot.emit = function () {
       swarm.emit(...arguments)
       oldEmit.apply(bot, arguments)
     }
