@@ -19,7 +19,7 @@ function createSwarm (auths, options = {}) {
   // general methods
   swarm.addSwarmMember = async function (auth) {
     // fix for microsoft auth
-    if (auth.auth === "microsoft") auth.authTitle = "00000000402b5328"
+    if (auth.auth === 'microsoft') auth.authTitle = '00000000402b5328'
     // create bot and save its options
     const bot = mineflayer.createBot({ ...options, ...auth })
     bot.my_opts = { ...options, ...auth }
