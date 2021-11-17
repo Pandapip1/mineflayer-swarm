@@ -24,10 +24,10 @@ function createSwarm (auths, options = {}) {
     const bot = mineflayer.createBot({ ...options, ...auth })
     bot.my_opts = { ...options, ...auth }
     // monkey patch bot.emit
-    const oldEmit = bot.emit
+    bot.oldEmit = bot.emit
     bot.emit = function (ns, ...params) {
-      swarm.emit(ns, bot, ...params)
-      oldEmit.apply(bot, arguments)
+      swarm.emit(ns, this, ...params)
+      bot.oldEmit(ns, ...params)
     }
     // add bot to swarm
     swarm.bots.push(bot)
