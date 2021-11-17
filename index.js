@@ -71,6 +71,9 @@ function createSwarm (auths, options = {}) {
   // init swarm
   auths.forEach(swarm.addSwarmMember)
 
+  // ignore errors
+  swarm.on('error', (bot, ...errors) => console.error(...errors))
+
   // remove disconnected members
   swarm.on('end', bot => {
     swarm.bots = swarm.bots.filter(x => bot.username !== x.username)
