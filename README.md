@@ -22,11 +22,11 @@ It's easier than you'd think!
 + const swarm = mineflayerSwarm.createSwarm([
 +   {
 +     username: 'email1@example.com',
-+     password: 'P@ssword1!'
++     password: 'P@ssword1!',
 +     auth: 'mojang'
 +   }, {
 +     username: 'email2@example.com',
-+     password: 'P@ssword2!'
++     password: 'P@ssword2!',
 +     auth: 'microsoft'
 +   }
 + ], {
@@ -51,11 +51,11 @@ const mineflayerSwarm = require('mineflayer-swarm')
 const swarm = mineflayerSwarm.createSwarm([
   { // I reccomend you put this in a json file and add it to your gitignore. Suggested name: auth.json
     username: 'email1@example.com',
-    password: 'P@ssword1!'
+    password: 'P@ssword1!',
     auth: 'mojang'
   }, {
     username: 'email2@example.com',
-    password: 'P@ssword2!'
+    password: 'P@ssword2!',
     auth: 'microsoft'
   }
 ], {
