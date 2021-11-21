@@ -5,7 +5,7 @@ if (typeof process !== 'undefined' && parseInt(process.versions.node.split('.')[
 }
 
 const mineflayer = require('mineflayer')
-const { EventEmitter } = require('events')
+const EventEmitter = require('eventemitter3')
 const assert = require('assert')
 
 function createSwarm (auths, options = {}) {
