@@ -51,9 +51,9 @@ export class Swarm extends EventEmitter {
     // fix for microsoft auth
     if (auth.auth === 'microsoft') auth.authTitle = '00000000402b5328'
     // create bot and save its options
-    const botOptions: ClientOptions = { ...this.options, ...auth } as ClientOptions
+    const botOptions: ClientOptions = { ...this.options, ...auth } as ClientOptions // eslint:disable-line
     const bot: SwarmBot = createBot(botOptions) as SwarmBot
-    bot.swarmOptions = {
+    bot.swarmOptions = { // eslint:disable-line
       botOptions: botOptions,
       injectAllowed: false
     } as BotSwarmData
