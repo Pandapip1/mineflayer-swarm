@@ -1,22 +1,31 @@
+import { createBot, Bot } from 'mineflayer'
+import { ClientOptions } from 'minecraft-protocol'
+import EventEmitter from 'eventemitter3'
+import assert from 'assert'
+
 if (typeof process !== 'undefined' && parseInt(process.versions.node.split('.')[0]) < 14) {
   console.error('Your node version is currently', process.versions.node)
   console.error('Please update it to a version >= 14.x.x from https://nodejs.org/')
   process.exit(1)
 }
 
-import { createBot, Bot } from "mineflayer"
-import { ClientOptions } from "minecraft-protocol"
-import EventEmitter from "eventemitter3"
-import assert from "assert"
+type Plugin = (((bot: Bot) => any) | ((bot: Bot, opts: ClientOptions) => any))
 
-type Plugin = (((bot : Bot) => any) | ((bot : Bot, opts : ClientOptions) => any))
+interface BotSwarmData {
+  botOptions: ClientOptions
+  injectAllowed: boolean
+}
+
+interface SwarmBot extends Bot {
+  swarmOptions: BotSwarmData
+}
 
 export class Swarm extends EventEmitter {
-  bots: Bot[]
+  bots: SwarmBot[]
   plugins: Plugin[]
   options: Partial<ClientOptions>
 
-  constructor(options: Partial<ClientOptions>) {
+  constructor (options: Partial<ClientOptions>) {
     super()
     this.bots = []
     this.plugins = []
@@ -31,24 +40,25 @@ export class Swarm extends EventEmitter {
 
     // plugin injection
     this.on('inject_allowed', bot => {
-      (bot as any).swarm_options.inject_allowed = true
+      bot.swarmOptions.injectAllowed = true
       this.plugins.forEach((plugin) => {
-        plugin(bot, (bot as any).swarm_options.bot_options)
+        plugin(bot, bot.swarmOptions.botOptions)
       })
     })
   }
 
-  addSwarmMember(auth : Partial<ClientOptions>) : void {
+  addSwarmMember (auth: Partial<ClientOptions>): void {
     // fix for microsoft auth
     if (auth.auth === 'microsoft') auth.authTitle = '00000000402b5328'
     // create bot and save its options
-    const bot = createBot({ ...this.options, ...auth } as ClientOptions) as Bot // Not sure why cast is neccesary...
-    // ugly but neccesary
-    (bot as any).swarm_options = {} as any
-    (bot as any).swarm_options.bot_options = { ...this.options, ...auth } as any
-    (bot as any).swarm_options.inject_alowed = false as any
+    const botOptions: ClientOptions = { ...this.options, ...auth } as ClientOptions
+    const bot: SwarmBot = createBot(botOptions) as SwarmBot
+    bot.swarmOptions = {
+      botOptions: botOptions,
+      injectAllowed: false
+    } as BotSwarmData
     // monkey patch bot.emit
-    var oldEmit = bot.emit
+    const oldEmit = bot.emit
     bot.emit = (event, ...args) => {
       this.emit(event, this, ...args)
       return oldEmit(event, ...args)
@@ -57,11 +67,11 @@ export class Swarm extends EventEmitter {
     this.bots.push(bot)
   }
 
-  isSwarmMember(username : string) : boolean {
+  isSwarmMember (username: string): boolean {
     return this.bots.some(bot => bot.username === username)
   }
 
-  async execAll<Type>(fun : ((bot : Bot) => Type | Promise<Type>)) : Promise<Type[]> {
+  async execAll<Type>(fun: ((bot: Bot) => Type | Promise<Type>)): Promise<Type[]> {
     return await Promise.all(this.bots.map(async bot => {
       let res = fun(bot)
       if (res instanceof Promise) res = await res
@@ -69,7 +79,7 @@ export class Swarm extends EventEmitter {
     }))
   }
 
-  loadPlugin(plugin : Plugin) {
+  loadPlugin (plugin: Plugin): void {
     assert.ok(typeof plugin === 'function', 'plugin needs to be a function')
 
     if (this.hasPlugin(plugin)) {
@@ -79,20 +89,20 @@ export class Swarm extends EventEmitter {
     this.plugins.push(plugin)
 
     this.bots.forEach(bot => {
-      if ((bot as any).swarm_options.inject_allowed) plugin(bot, (bot as any).swarm_options.bot_options)
+      if (bot.swarmOptions.injectAllowed) plugin(bot, bot.swarmOptions.botOptions)
     })
   }
 
-  loadPlugins(plugins : Plugin[]) : void {
+  loadPlugins (plugins: Plugin[]): void {
     plugins.forEach(this.loadPlugin)
   }
 
-  hasPlugin(plugin : Plugin) : boolean {
-    return this.plugins.indexOf(plugin) >= 0
+  hasPlugin (plugin: Plugin): boolean {
+    return this.plugins.includes(plugin)
   }
 }
 
-export function createSwarm (auths : Partial<ClientOptions>[], options : Partial<ClientOptions> = {}) {
+export function createSwarm (auths: Array<Partial<ClientOptions>>, options: Partial<ClientOptions> = {}): Swarm {
   // create swarm object
   const swarm = new Swarm(options)
 

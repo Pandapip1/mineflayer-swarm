@@ -14,7 +14,9 @@ jobs:
       uses: actions/setup-node@master
       with:
         node-version: 14.0.0
-    - name: Compile typescript
+    - name: Install Dependencies
+      run: npm i
+    - name: Compile Typescript
       run: tsc
     - id: publish
       uses: JS-DevTools/npm-publish@v1
