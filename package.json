@@ -41,7 +41,8 @@
   },
   "ts-standard": {
     "ignore": [
-      "node_modules"
+      "node_modules",
+      "*.js"
     ]
   }
 }
