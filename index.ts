@@ -11,13 +11,13 @@ if (typeof process !== 'undefined' && parseInt(process.versions.node.split('.')[
 
 type Plugin = (((bot: Bot) => any) | ((bot: Bot, opts: ClientOptions) => any))
 
-interface BotSwarmData {
-  botOptions: ClientOptions
-  injectAllowed: boolean
+class BotSwarmData {
+  botOptions?: ClientOptions
+  injectAllowed: boolean = false
 }
 
 interface SwarmBot extends Bot {
-  swarmOptions: BotSwarmData
+  swarmOptions?: BotSwarmData
 }
 
 export class Swarm extends EventEmitter {
@@ -51,12 +51,10 @@ export class Swarm extends EventEmitter {
     // fix for microsoft auth
     if (auth.auth === 'microsoft') auth.authTitle = '00000000402b5328'
     // create bot and save its options
-    const botOptions: ClientOptions = { ...this.options, ...auth } as ClientOptions // eslint:disable-line
-    const bot: SwarmBot = createBot(botOptions) as SwarmBot
-    bot.swarmOptions = { // eslint:disable-line
-      botOptions: botOptions,
-      injectAllowed: false
-    } as BotSwarmData
+    const botOptions: Partial<ClientOptions> = { ...this.options, ...auth }
+    const bot: SwarmBot = createBot(botOptions as ClientOptions)
+    bot.swarmOptions = new BotSwarmData()
+    bot.swarmOptions.botOptions = botOptions as ClientOptions
     // monkey patch bot.emit
     const oldEmit = bot.emit
     bot.emit = (event, ...args) => {
@@ -89,7 +87,9 @@ export class Swarm extends EventEmitter {
     this.plugins.push(plugin)
 
     this.bots.forEach(bot => {
-      if (bot.swarmOptions.injectAllowed) plugin(bot, bot.swarmOptions.botOptions)
+      if (bot.swarmOptions?.botOptions !== undefined && bot.swarmOptions?.injectAllowed) {
+        plugin(bot, bot.swarmOptions.botOptions)
+      }
     })
   }
 
