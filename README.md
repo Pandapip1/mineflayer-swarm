@@ -9,56 +9,30 @@ Allows you to control an entire [mineflayer](https://github.com/PrismarineJS/min
 
 It's easier than you'd think!
 
-```diff
-- const mineflayer = require('mineflayer')
-+ const mineflayerSwarm = require('mineflayer-swarm')
+Example bot using mineflayer:
 
-- const bot = mineflayer.createBot({
--   username: 'email0@example.com',
--   password: 'P@ssword0!',
--   host: 'localhost',
--   port: 25565
-- })
-+ const swarm = mineflayerSwarm.createSwarm([
-+   {
-+     username: 'email1@example.com',
-+     password: 'P@ssword1!',
-+     auth: 'mojang'
-+   }, {
-+     username: 'email2@example.com',
-+     password: 'P@ssword2!',
-+     auth: 'microsoft'
-+   }
-+ ], {
-+   host: 'localhost',
-+   port: 25565
-+ })
+```ts
+import { createBot, Bot } from 'mineflayer'
 
-- bot.on('chat', (username, message) => {
--   if (username === bot.username) return
--   bot.chat(message)
-- })
-+ swarm.on('chat', (bot, username, message) => {
-+   if (swarm.isSwarmMember(username)) return
-+   bot.chat(message)
-+ })
+const bot: Bot = createBot({
+  username: 'email0@example.com',
+  password: 'P@ssword0!',
+  host: 'localhost',
+  port: 25565
+})
 
+bot.on('chat', (username, message) => {
+  if (username === bot.username) return
+  bot.chat(message)
+})
 ```
-Just the code:
-```node
-const mineflayerSwarm = require('mineflayer-swarm')
 
-const swarm = mineflayerSwarm.createSwarm([
-  { // I reccomend you put this in a json file and add it to your gitignore. Suggested name: auth.json
-    username: 'email1@example.com',
-    password: 'P@ssword1!',
-    auth: 'mojang'
-  }, {
-    username: 'email2@example.com',
-    password: 'P@ssword2!',
-    auth: 'microsoft'
-  }
-], {
+Example bot using mineflayer-swarm:
+
+```ts
+import { createSwarm, Swarm } from 'mineflayer'
+
+const swarm: Swarm = mineflayerSwarm.createSwarm(require('auth.json'), {
   host: 'localhost',
   port: 25565
 })
@@ -67,34 +41,4 @@ swarm.on('chat', (bot, username, message) => {
   if (swarm.isSwarmMember(username)) return
   bot.chat(message)
 })
-
 ```
-## API
-
-### createSwarm(auths, options = {})
-
-Creates a new swarm object. Bots are removed from the swarm on disconnect.
-
-### async swarm.addSwarmMember(auth)
-
-Adds a member to a swarm dynamically.
-
-### swarm.isSwarmMember(username)
-
-Returns true if the given username is part of the swarm, otherwise returns false.
-
-### async swarm.execAll(function)
-
-Evaluates the given function (or async function) in the context of each bot, and returns the result.
-
-### swarm.loadPlugin(plugin)
-
-Loads a plugin in all bots in the swarm.
-
-### swarm.loadPlugins(plugins)
-
-Loads multiple plugins in all bots in the swarm.
-
-### swarm.hasPlugin(plugin)
-
-Returns true if the given plugin is loaded in the swarm, otherwise returns false.
