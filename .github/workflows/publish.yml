@@ -40,7 +40,7 @@ jobs:
       name: Publish to GitHub Registry
       uses: JS-DevTools/npm-publish@v1
       with:
-        registry: https://npm.pkg.github.com
+        registry: https://npm.pkg.github.com/@pandapip1
         token: ${{ secrets.GITHUB_TOKEN }}
       
     - id: create_release
