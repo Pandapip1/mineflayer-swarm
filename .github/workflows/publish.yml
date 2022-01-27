@@ -35,12 +35,20 @@ jobs:
       uses: JS-DevTools/npm-publish@v1
       with:
         token: ${{ secrets.NPM_AUTH_TOKEN }}
-      
+    
+    - id: edit_name
+      name: Namespace Package Name
+      uses: deef0000dragon1/json-edit-action@v1
+      env:
+        KEY: name
+        VALUE: "@pandapip1/mineflayer-swarm"
+        FILE: package.json
+
     - id: publish_gh
       name: Publish to GitHub Registry
       uses: JS-DevTools/npm-publish@v1
       with:
-        registry: https://npm.pkg.github.com/@pandapip1
+        registry: https://npm.pkg.github.com
         token: ${{ secrets.GITHUB_TOKEN }}
       
     - id: create_release
