@@ -4,6 +4,9 @@ mineflayer-swarm allows you to control an entire mineflayer bot swarm with minim
 
 The API isn't final, so even minor versions might introduce breaking changes. Here be dragons!
 
+Links:
+- [API Reference](api.md)
+
 ## Moving from a single bot to a swarm
 
 It's easier than you'd think!
