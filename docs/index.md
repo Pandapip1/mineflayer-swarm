@@ -1,37 +1,43 @@
-## Welcome to GitHub Pages
+## Welcome to mineflayer-swarm
 
-You can use the [editor on GitHub](https://github.com/Pandapip1/mineflayer-swarm/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
+mineflayer-swarm allows you to control an entire mineflayer bot swarm with minimal additional code.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+The API isn't final, so even minor versions might introduce breaking changes. Here be dragons!
 
-### Markdown
+## Moving from a single bot to a swarm
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+It's easier than you'd think!
 
-```markdown
-Syntax highlighted code block
+Example bot using mineflayer:
 
-# Header 1
-## Header 2
-### Header 3
+```ts
+import { createBot, Bot } from 'mineflayer'
 
-- Bulleted
-- List
+const bot: Bot = createBot({
+  username: 'email0@example.com',
+  password: 'P@ssword0!',
+  host: 'localhost',
+  port: 25565
+})
 
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+bot.on('chat', (username, message) => {
+  if (username === bot.username) return
+  bot.chat(message)
+})
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+Example bot using mineflayer-swarm:
 
-### Jekyll Themes
+```ts
+import { createSwarm, Swarm } from 'mineflayer'
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Pandapip1/mineflayer-swarm/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+const swarm: Swarm = mineflayerSwarm.createSwarm(require('auth.json'), {
+  host: 'localhost',
+  port: 25565
+})
 
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+swarm.on('chat', (bot, username, message) => {
+  if (swarm.isSwarmMember(username)) return
+  bot.chat(message)
+})
+```
