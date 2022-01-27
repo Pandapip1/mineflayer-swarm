@@ -8,29 +8,50 @@ jobs:
     name: npm-publish
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
+    - id: checkout
+      name: Checkout repository
       uses: actions/checkout@master
-    - name: Set up Node.js
+      
+    - id: setup_node
+      name: Set up Node.js
       uses: actions/setup-node@master
       with:
-        node-version: 14.0.0
-    - name: Install Dependencies
+        node-version: 16.0.0
+      
+    - id: install_deps
+      name: Install Dependencies
       run: npm i
-    - name: Compile Typescript
+      
+    - id: compile
+      name: Compile Typescript
       run: tsc
-    - id: publish
+      
+    - id: do_tests
+      name: Unit Tests
+      run: npm test
+      
+    - id: publish_npm
+      name: Publish to NPM Registry
       uses: JS-DevTools/npm-publish@v1
       with:
         token: ${{ secrets.NPM_AUTH_TOKEN }}
-    - name: Create Release
-      if: steps.publish.outputs.type != 'none'
-      id: create_release
+      
+    - id: publish_gh
+      name: Publish to GitHub Registry
+      uses: JS-DevTools/npm-publish@v1
+      with:
+        registry: https://npm.pkg.github.com
+        token: ${{ secrets.GITHUB_TOKEN }}
+      
+    - id: create_release
+      name: Create Release
+      if: steps.publish_npm.outputs.type != 'none' && steps.publish_gh.outputs.type != 'none'
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.publish.outputs.version }}
-        release_name: Release ${{ steps.publish.outputs.version }}
-        body: ${{ steps.publish.outputs.version }}
+        tag_name: ${{ steps.publish_npm.outputs.version }}
+        release_name: Release ${{ steps.publish_npm.outputs.version }}
+        body: ${{ steps.publish_npm.outputs.version }}
         draft: false
         prerelease: false
