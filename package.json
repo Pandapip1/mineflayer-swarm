@@ -29,7 +29,7 @@
   "dependencies": {
     "eventemitter3": "^4.0.7",
     "minecraft-protocol": "^1.30.0",
-    "mineflayer": "^3.11.2",
+    "mineflayer": "^4.2.0",
     "typed-emitter": "^2.0.0"
   },
   "devDependencies": {
