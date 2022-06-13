@@ -2,7 +2,20 @@
 
 ### function createSwarm(auths: Partial\<ClientOptions\>[], options: Partial\<ClientOptions\> = {})
 
+## Description
+
 Creates a new Swarm object. Bots are removed from the swarm on disconnect.
+
+## Example
+
+```js
+import { createSwarm, Swarm } from 'mineflayer';
+
+const swarm: Swarm = mineflayerSwarm.createSwarm(require('auth.json'), {
+  host: 'localhost',
+  port: 25565
+});
+```
 
 ### type Plugin
 
@@ -26,18 +39,14 @@ Adds a member to a swarm.
 
 Returns whether a bot in the swarm has the given username.
 
-#### async execAll\<Type\>(fun: ((bot: Bot) => Type | Promise\<Type\>)): Promise\<Type[]\>
+#### loadPlugin(plugin: String): void
 
-Evaluates the given function (or async function) in the context of each bot, and returns the result.
+Loads a plugin with the given package in all bots in the swarm.
 
-#### loadPlugin(plugin: Plugin): void
+```js
+swarm.loadPlugin('');
+```
 
-Loads a plugin in all bots in the swarm.
-
-#### loadPlugins(plugins: Plugin[]): void
-
-Loads multiple plugins in all bots in the swarm.
-
-#### hasPlugin(plugin: Plugin): boolean
+#### hasPlugin(plugin: String): boolean
 
 Returns true if the given plugin is loaded in the swarm, otherwise returns false.
