@@ -38,7 +38,7 @@
     "typed-emitter": "^2.0.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.10",
+    "@types/node": "^18.0.0",
     "eslint": "^7.32.0",
     "jest": "^28.1.1",
     "mineflayer-swarm": "file:.",
