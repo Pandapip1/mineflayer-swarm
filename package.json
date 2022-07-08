@@ -28,7 +28,7 @@
   "homepage": "https://github.com/Pandapip1/mineflayer-swarm#readme",
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.33.0",
-    "eslint-config-standard-with-typescript": "^21.0.1",
+    "eslint-config-standard-with-typescript": "^22.0.0",
     "eventemitter3": "^4.0.7",
     "minecraft-protocol": "^1.30.0",
     "minecrafthawkeye": "^1.2.7",
