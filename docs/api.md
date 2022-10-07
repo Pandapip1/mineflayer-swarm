@@ -39,9 +39,9 @@ Adds a member to a swarm.
 
 Returns whether a bot in the swarm has the given username.
 
-#### loadPlugin(plugin: String): void
+#### loadPlugin(name: String, plugin?: Plugin): void
 
-Loads a plugin with the given package in all bots in the swarm.
+Loads a plugin with the given `name` in all bots in the swarm. If `plugin` is omitted, then it is automatically fetched by package name.
 
 ```js
 swarm.loadPlugin('');
