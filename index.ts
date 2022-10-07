@@ -2,6 +2,9 @@ import { createBot, Bot } from 'mineflayer';
 import { ClientOptions } from 'minecraft-protocol';
 import EventEmitter from 'eventemitter3';
 import assert from 'assert';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 if (typeof process !== 'undefined' && parseInt(process.versions.node.split('.')[0]) < 16) {
   console.error('Your node version is currently', process.versions.node);
@@ -26,13 +29,13 @@ interface SwarmBot extends Bot {
 
 export class Swarm extends EventEmitter {
   bots: SwarmBot[];
-  plugins: Plugin[];
+  plugins: {[key: string]: Plugin};
   options: Partial<ClientOptions>;
 
   constructor (options: Partial<ClientOptions>) {
     super();
     this.bots = [];
-    this.plugins = [];
+    this.plugins = {};
     this.options = options;
 
     this.on('error', (bot, ...errors) => console.error(...errors));
@@ -45,9 +48,9 @@ export class Swarm extends EventEmitter {
     // plugin injection
     this.on('inject_allowed', bot => {
       bot.swarmOptions.injectAllowed = true;
-      this.plugins.forEach((plugin) => {
-        plugin(bot, bot.swarmOptions.botOptions);
-      });
+      for (let name of this.plugins) {
+        this.plugins[name](bot, bot.swarmOptions.botOptions);
+      }
     });
   }
 
@@ -72,15 +75,19 @@ export class Swarm extends EventEmitter {
   isSwarmMember (username: string): boolean {
     return this.bots.some(bot => bot.username === username);
   }
-
-  loadPlugin (plugin: Plugin): void {
+  
+  loadPlugin (name: String, plugin?: Plugin | undefined): void {
+    if (typeof plugin === 'undefined') {
+      plugin = require(name) as Plugin;
+    }
+    
     assert.ok(typeof plugin === 'function', 'plugin needs to be a function');
 
-    if (this.hasPlugin(plugin)) {
+    if (this.hasPlugin(name)) {
       return;
     }
 
-    this.plugins.push(plugin);
+    this.plugins[name] = plugin;
 
     this.bots.forEach(bot => {
       if (bot.swarmOptions?.botOptions !== undefined && bot.swarmOptions?.injectAllowed) {
@@ -89,8 +96,8 @@ export class Swarm extends EventEmitter {
     });
   }
 
-  hasPlugin (plugin: String): boolean {
-    return this.plugins.includes(plugin);
+  hasPlugin (name: String): boolean {
+    return name in this.plugins;
   }
 }
 
