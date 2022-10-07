@@ -18,8 +18,8 @@ export class BotSwarmData {
 }
 
 export interface ISwarm {
-    say(): string;
-};
+  say: () => string
+}
 
 interface SwarmBot extends Bot {
   swarmOptions?: BotSwarmData
@@ -27,7 +27,7 @@ interface SwarmBot extends Bot {
 
 export class Swarm extends EventEmitter {
   bots: SwarmBot[];
-  plugins: {[key: string]: Plugin};
+  plugins: { [key: string]: Plugin };
   options: Partial<ClientOptions>;
   requirePlugin = createRequire(import.meta.url);
 
@@ -47,7 +47,7 @@ export class Swarm extends EventEmitter {
     // plugin injection
     this.on('inject_allowed', bot => {
       bot.swarmOptions.injectAllowed = true;
-      for (let name in this.plugins) {
+      for (const name in this.plugins) {
         this.plugins[name](bot, bot.swarmOptions.botOptions);
       }
     });
@@ -74,13 +74,13 @@ export class Swarm extends EventEmitter {
   isSwarmMember (username: string): boolean {
     return this.bots.some(bot => bot.username === username);
   }
-  
+
   loadPlugin (name: string, plugin?: Plugin | undefined): void {
     let resolvedPlugin: Plugin = plugin as Plugin; // Ugly: fixme
     if (typeof plugin === 'undefined') {
       resolvedPlugin = this.requirePlugin(name) as Plugin;
     }
-    
+
     assert.ok(typeof plugin === 'function', 'plugin needs to be a function');
 
     if (this.hasPlugin(name)) {
