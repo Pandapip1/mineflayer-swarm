@@ -1,6 +1,6 @@
 {
   "name": "mineflayer-swarm",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Allows you to control an entire mineflayer bot swarm with minimal additional code",
   "main": "index.js",
   "scripts": {
