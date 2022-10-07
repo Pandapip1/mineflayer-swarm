@@ -90,7 +90,6 @@ export class Swarm extends EventEmitter {
   }
 
   hasPlugin (plugin: String): boolean {
-    import 
     return this.plugins.includes(plugin);
   }
 }
