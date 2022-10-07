@@ -2,6 +2,7 @@ import { createBot, Bot } from 'mineflayer';
 import { ClientOptions } from 'minecraft-protocol';
 import EventEmitter from 'eventemitter3';
 import assert from 'assert';
+import { createRequire } from 'node:module';
 
 if (typeof process !== 'undefined' && parseInt(process.versions.node.split('.')[0]) < 16) {
   console.error('Your node version is currently', process.versions.node);
@@ -17,8 +18,8 @@ export class BotSwarmData {
 }
 
 export interface ISwarm {
-    say(): string;
-};
+  say: () => string
+}
 
 interface SwarmBot extends Bot {
   swarmOptions?: BotSwarmData
@@ -26,13 +27,14 @@ interface SwarmBot extends Bot {
 
 export class Swarm extends EventEmitter {
   bots: SwarmBot[];
-  plugins: Plugin[];
+  plugins: { [key: string]: Plugin };
   options: Partial<ClientOptions>;
+  requirePlugin = createRequire(import.meta.url);
 
   constructor (options: Partial<ClientOptions>) {
     super();
     this.bots = [];
-    this.plugins = [];
+    this.plugins = {};
     this.options = options;
 
     this.on('error', (bot, ...errors) => console.error(...errors));
@@ -45,9 +47,9 @@ export class Swarm extends EventEmitter {
     // plugin injection
     this.on('inject_allowed', bot => {
       bot.swarmOptions.injectAllowed = true;
-      this.plugins.forEach((plugin) => {
-        plugin(bot, bot.swarmOptions.botOptions);
-      });
+      for (const name in this.plugins) {
+        this.plugins[name](bot, bot.swarmOptions.botOptions);
+      }
     });
   }
 
@@ -73,24 +75,29 @@ export class Swarm extends EventEmitter {
     return this.bots.some(bot => bot.username === username);
   }
 
-  loadPlugin (plugin: Plugin): void {
+  loadPlugin (name: string, plugin?: Plugin | undefined): void {
+    let resolvedPlugin: Plugin = plugin as Plugin; // Ugly: fixme
+    if (typeof plugin === 'undefined') {
+      resolvedPlugin = this.requirePlugin(name) as Plugin;
+    }
+
     assert.ok(typeof plugin === 'function', 'plugin needs to be a function');
 
-    if (this.hasPlugin(plugin)) {
+    if (this.hasPlugin(name)) {
       return;
     }
 
-    this.plugins.push(plugin);
+    this.plugins[name] = plugin;
 
     this.bots.forEach(bot => {
       if (bot.swarmOptions?.botOptions !== undefined && bot.swarmOptions?.injectAllowed) {
-        plugin(bot, bot.swarmOptions.botOptions);
+        resolvedPlugin(bot, bot.swarmOptions.botOptions);
       }
     });
   }
 
-  hasPlugin (plugin: String): boolean {
-    return this.plugins.includes(plugin);
+  hasPlugin (name: string): boolean {
+    return Object.keys(this.plugins).includes(name);
   }
 }
 
