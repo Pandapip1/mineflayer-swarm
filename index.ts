@@ -78,7 +78,7 @@ export class Swarm extends EventEmitter {
   loadPlugin (name: string, plugin?: Plugin | undefined): void {
     let resolvedPlugin: Plugin = plugin as Plugin; // Ugly: fixme
     if (typeof plugin === 'undefined') {
-      plugin = this.requirePlugin(name) as Plugin;
+      resolvedPlugin = this.requirePlugin(name) as Plugin;
     }
     
     assert.ok(typeof plugin === 'function', 'plugin needs to be a function');
@@ -91,7 +91,7 @@ export class Swarm extends EventEmitter {
 
     this.bots.forEach(bot => {
       if (bot.swarmOptions?.botOptions !== undefined && bot.swarmOptions?.injectAllowed) {
-        plugin(bot, bot.swarmOptions.botOptions);
+        resolvedPlugin(bot, bot.swarmOptions.botOptions);
       }
     });
   }
