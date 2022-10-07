@@ -10,21 +10,26 @@ if (typeof process !== 'undefined' && parseInt(process.versions.node.split('.')[
   process.exit(1);
 }
 
-export type Plugin = (((bot: Bot) => null) | ((bot: Bot, opts: ClientOptions) => null));
+/**
+ * Creates a new Swarm object. Bots are removed from the swarm on disconnect.
+ * @param {ConnectionOptions} options - Connection options for the swarm.
+ * @param {AuthenticationOptions[]} [auths] - A list of initial authentication options for each member of the swarm. Defaults to no members.
+ * @returns {Swarm} A newly created swarm.
+ */
+export function createSwarm (options: ConnectionOptions, auths: AuthenticationOptions[] = []): Swarm {
+  // create swarm object
+  const swarm = new Swarm(options);
 
-export class BotSwarmData {
-  botOptions?: ClientOptions;
-  injectAllowed = false;
+  // init swarm
+  auths.forEach(swarm.addSwarmMember);
+
+  return swarm;
 }
 
-export interface ISwarm {
-  say: () => string
-}
-
-interface SwarmBot extends Bot {
-  swarmOptions?: BotSwarmData
-}
-
+/**
+ * Represents a swarm of mineflayer bots. Bots are removed from the swarm on disconnect.
+ * @see createSwarm to create a swarm object.
+ */
 export class Swarm extends EventEmitter {
   bots: SwarmBot[];
   plugins: { [key: string]: Plugin };
@@ -53,7 +58,11 @@ export class Swarm extends EventEmitter {
     });
   }
 
-  addSwarmMember (auth: Partial<ClientOptions>): void {
+  /**
+   * Check for the presence or absence of a member with a given name.
+   * @param {AuthenticationOptions} auth - The authentication information to create the swarm member with.
+   */
+  addSwarmMember (auth: AuthenticationOptions): void {
     // fix for microsoft auth
     if (auth.auth === 'microsoft') auth.authTitle = '00000000402b5328';
     // create bot and save its options
@@ -71,10 +80,21 @@ export class Swarm extends EventEmitter {
     this.bots.push(bot);
   }
 
+  /**
+   * Check for the presence or absence of a member with a given name.
+   * @param {string} username - The username to query for.
+   * @returns {boolean} Returns true if the given username is contained in the swarm, otherwise returns false.
+   */
   isSwarmMember (username: string): boolean {
     return this.bots.some(bot => bot.username === username);
   }
 
+  /**
+   * Load a plugin
+   * @param {string} name - The plugin to add.
+   * @param {Plugin} [plugin] - DEPRECATED OPTION. WILL BE REMOVED IN A FUTURE RELEASE.
+   * @returns {boolean} Returns true if the given plugin is loaded in the swarm, otherwise returns false.
+   */
   loadPlugin (name: string, plugin?: Plugin | undefined): void {
     let resolvedPlugin: Plugin = plugin as Plugin; // Ugly: fixme
     if (typeof plugin === 'undefined') {
@@ -96,17 +116,48 @@ export class Swarm extends EventEmitter {
     });
   }
 
+  /**
+   * Check for the presence or absence of a plugin with a given name.
+   * @param {string} name - The plugin to query for.
+   * @returns {boolean} Returns true if the given plugin is loaded in the swarm, otherwise returns false.
+   */
   hasPlugin (name: string): boolean {
     return Object.keys(this.plugins).includes(name);
   }
 }
 
-export function createSwarm (auths: Array<Partial<ClientOptions>>, options: Partial<ClientOptions> = {}): Swarm {
-  // create swarm object
-  const swarm = new Swarm(options);
+/**
+ * @callback Plugin A plugin that can be loaded into a bot.
+ * @deprecated
+ * @param {Bot} The bot to load the plugin into.
+ * @param {ClientOptions} [opts] The bot's ClientOptions.
+ */
+export type Plugin = (((bot: Bot) => null) | ((bot: Bot, opts: ClientOptions) => null));
 
-  // init swarm
-  auths.forEach(swarm.addSwarmMember);
-
-  return swarm;
+/**
+ * @typedef {Object} BotSwarmData - Data about bots stored by the swarm.
+ * @property {ClientOptions} [botOptions] - The bot's ClientOptions.
+ * @property {boolean} injectAllowed - Whether the bot is ready for plugin injection.
+ */
+export class BotSwarmData {
+  botOptions?: ClientOptions;
+  injectAllowed = false;
 }
+
+/**
+ * @typedef {Object} SwarmBot - A bot in a swarm.
+ * @property {BotSwarmData} [swarmOptions] - The bot's BotSwarmData.
+ */
+export interface SwarmBot extends Bot {
+  swarmOptions?: BotSwarmData
+}
+
+/**
+ * @typedef {Partial<ClientOptions>} AuthenticationOptions - Authentication options for swarms.
+ */
+export type AuthenticationOptions = Partial<ClientOptions>;
+
+/**
+ * @typedef {Partial<ClientOptions>} ConnectionOptions - Connection options for swarms.
+ */
+export type ConnectionOptions = Partial<ClientOptions>;
