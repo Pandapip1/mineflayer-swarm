@@ -4,8 +4,6 @@ import EventEmitter from 'eventemitter3';
 import assert from 'assert';
 import { createRequire } from 'node:module';
 
-const require = createRequire(import.meta.url);
-
 if (typeof process !== 'undefined' && parseInt(process.versions.node.split('.')[0]) < 16) {
   console.error('Your node version is currently', process.versions.node);
   console.error('Please update it to a version >= 16.x.x from https://nodejs.org/');
@@ -31,6 +29,7 @@ export class Swarm extends EventEmitter {
   bots: SwarmBot[];
   plugins: {[key: string]: Plugin};
   options: Partial<ClientOptions>;
+  requirePlugin = createRequire(import.meta.url);
 
   constructor (options: Partial<ClientOptions>) {
     super();
@@ -48,7 +47,7 @@ export class Swarm extends EventEmitter {
     // plugin injection
     this.on('inject_allowed', bot => {
       bot.swarmOptions.injectAllowed = true;
-      for (let name of this.plugins) {
+      for (let name in this.plugins) {
         this.plugins[name](bot, bot.swarmOptions.botOptions);
       }
     });
@@ -76,9 +75,10 @@ export class Swarm extends EventEmitter {
     return this.bots.some(bot => bot.username === username);
   }
   
-  loadPlugin (name: String, plugin?: Plugin | undefined): void {
+  loadPlugin (name: string, plugin?: Plugin | undefined): void {
+    let resolvedPlugin: Plugin = plugin as Plugin; // Ugly: fixme
     if (typeof plugin === 'undefined') {
-      plugin = require(name) as Plugin;
+      plugin = this.requirePlugin(name) as Plugin;
     }
     
     assert.ok(typeof plugin === 'function', 'plugin needs to be a function');
@@ -96,8 +96,8 @@ export class Swarm extends EventEmitter {
     });
   }
 
-  hasPlugin (name: String): boolean {
-    return name in this.plugins;
+  hasPlugin (name: string): boolean {
+    return Object.keys(this.plugins).includes(name);
   }
 }
 
