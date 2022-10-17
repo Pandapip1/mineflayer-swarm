@@ -1,7 +1,8 @@
 name: npm-publish
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   npm-publish:
@@ -10,13 +11,13 @@ jobs:
     steps:
     - id: checkout
       name: Checkout repository
-      uses: actions/checkout@master
+      uses: actions/checkout@v3
       
     - id: setup_node
       name: Set up Node.js
-      uses: actions/setup-node@master
+      uses: actions/setup-node@v3
       with:
-        node-version: 16.0.0
+        node-version: v18
       
     - id: install_deps
       name: Install Dependencies
@@ -24,7 +25,7 @@ jobs:
       
     - id: compile
       name: Compile Typescript
-      run: tsc --skipLibCheck
+      run: tsc
       
     - id: do_tests
       name: Unit Tests
