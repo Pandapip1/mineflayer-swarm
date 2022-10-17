@@ -24,7 +24,7 @@ jobs:
       
     - id: compile
       name: Compile Typescript
-      run: tsc
+      run: tsc --skipLibCheck
       
     - id: do_tests
       name: Unit Tests
