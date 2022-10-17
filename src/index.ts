@@ -1,4 +1,3 @@
-// @ts-expect-error: Mineflayer d.ts is currently invalid
 import { createBot, Bot } from 'mineflayer';
 import { ClientOptions } from 'minecraft-protocol';
 import EventEmitter from 'eventemitter3';
