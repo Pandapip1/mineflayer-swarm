@@ -28,18 +28,7 @@ jobs:
         uses: actions/configure-pages@v2
 
       - name: Build
-        uses: andstor/jsdoc-action@v1
-        with:
-          source_dir: ./src
-          output_dir: ./out
-          recurse: true
-          
-          config_file: jsdoc.json
-          
-          template: ink-docstrap
-          template_dir: template
-          
-          front_page: README.md
+        run: typedoc --options typedoc.json
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v1
