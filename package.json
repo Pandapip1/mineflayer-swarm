@@ -35,7 +35,8 @@
     "eventemitter3": "^4.0.7",
     "minecraft-protocol": "^1.30.0",
     "mineflayer": "git+https://github.com/PrismarineJS/mineflayer.git",
-    "typed-emitter": "^2.0.0"
+    "typed-emitter": "^2.0.0",
+    "typedoc": "^0.23"
   },
   "devDependencies": {
     "@types/node": "18.8.4",
