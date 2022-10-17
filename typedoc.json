@@ -19,5 +19,11 @@
   "templates": {
     "cleverLinks": true,
     "monospaceLinks": false
+  },
+  "opts": {
+    "template": "ink-docstrap",
+    "encoding": "utf8",
+    "destination": "./out/",
+    "recurse": true
   }
 }
