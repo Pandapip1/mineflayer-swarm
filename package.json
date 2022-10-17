@@ -7,7 +7,10 @@
     "test": "jest --verbose",
     "pretest": "npm run lint",
     "lint": "eslint . --ext .ts",
-    "fix": "eslint --fix . --ext .ts"
+    "fix": "eslint --fix . --ext .ts",
+    "build:tsc": "tsc",
+    "build:docs": "typedoc --options typedoc.json",
+    "build": "npm run build:tsc && npm run build:docs"
   },
   "repository": {
     "type": "git",
