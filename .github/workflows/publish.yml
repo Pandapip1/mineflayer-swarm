@@ -23,9 +23,9 @@ jobs:
       name: Install Dependencies
       run: npm i
       
-    - id: compile
-      name: Compile Typescript
-      run: tsc
+    - id: build
+      name: Build
+      run: build
       
     - id: do_tests
       name: Unit Tests
