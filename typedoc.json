@@ -1,29 +1,8 @@
 {
-  "plugins": [
-    "plugins/markdown",
-    "plugins/summarize"
+  "entryPoints": [
+    "./src/"
   ],
-  "recurseDepth": 10,
-  "source": {
-    "includePattern": ".+\\.(js|ts)(doc|x)?$",
-    "excludePattern": "(^|\\/|\\\\)_"
-  },
-  "sourceType": "module",
-  "tags": {
-    "allowUnknownTags": false,
-    "dictionaries": [
-      "jsdoc",
-      "closure"
-    ]
-  },
-  "templates": {
-    "cleverLinks": true,
-    "monospaceLinks": false
-  },
-  "opts": {
-    "template": "ink-docstrap",
-    "encoding": "utf8",
-    "destination": "./out/",
-    "recurse": true
-  }
+  "githubPages": false,
+  "out": "./docs/",
+  "plugin": []
 }
