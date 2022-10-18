@@ -27,24 +27,21 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v2
 
-      - name: Build
-        uses: andstor/jsdoc-action@v1
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          source_dir: ./src
-          output_dir: ./out
-          recurse: true
-          
-          config_file: jsdoc.json
-          
-          template: ink-docstrap
-          template_dir: template
-          
-          front_page: README.md
+          node-version: 18.x
+
+      - name: Install Dependencies
+        run: npm i
+
+      - name: Build
+        run: npm run build
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: './out'
+          path: './docs/'
 
       - name: Deploy to GitHub Pages
         id: deployment

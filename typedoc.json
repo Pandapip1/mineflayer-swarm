@@ -1,0 +1,8 @@
+{
+  "entryPoints": [
+    "./src/"
+  ],
+  "githubPages": false,
+  "out": "./docs/",
+  "plugin": []
+}
