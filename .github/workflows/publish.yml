@@ -25,7 +25,7 @@ jobs:
       
     - id: build
       name: Build
-      run: build
+      run: npm run build
       
     - id: do_tests
       name: Unit Tests
