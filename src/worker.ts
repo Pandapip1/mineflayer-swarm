@@ -1,36 +1,5 @@
-import { createBot, Bot } from 'mineflayer';
-import { ClientOptions } from 'minecraft-protocol';
-import EventEmitter from 'eventemitter3';
-import assert from 'assert';
-import { createRequire } from 'node:module';
 
-if (typeof process !== 'undefined' && parseInt(process.versions.node.split('.')[0]) < 16) {
-  console.error('Your node version is currently', process.versions.node);
-  console.error('Please update it to a version >= 16.x.x from https://nodejs.org/');
-  process.exit(1);
-}
-
-/**
- * Creates a new Swarm object. Bots are removed from the swarm on disconnect.
- * @param {ConnectionOptions} options - Connection options for the swarm.
- * @param {AuthenticationOptions[]} [auths] - A list of initial authentication options for each member of the swarm. Defaults to no members.
- * @returns {Swarm} A newly created swarm.
- */
-export function createSwarm (options: ConnectionOptions, auths: AuthenticationOptions[] = []): Swarm {
-  // create swarm object
-  const swarm = new Swarm(options);
-
-  // init swarm
-  auths.forEach(swarm.addSwarmMember);
-
-  return swarm;
-}
-
-/**
- * Represents a swarm of mineflayer bots. Bots are removed from the swarm on disconnect.
- * @see createSwarm to create a swarm object.
- */
-export class Swarm extends EventEmitter {
+export class SwarmWorker {
   bots: SwarmBot[];
   plugins: { [key: string]: Plugin };
   options: Partial<ClientOptions>;
@@ -120,37 +89,4 @@ export class Swarm extends EventEmitter {
   }
 }
 
-/**
- * @callback Plugin A plugin that can be loaded into a bot.
- * @param {Bot} The bot to load the plugin into.
- * @param {ClientOptions} [opts] The bot's ClientOptions.
- */
-type Plugin = (((bot: Bot) => null) | ((bot: Bot, opts: ClientOptions) => null));
-
-/**
- * @typedef {Object} BotSwarmData - Data about bots stored by the swarm.
- * @property {ClientOptions} [botOptions] - The bot's ClientOptions.
- * @property {boolean} injectAllowed - Whether the bot is ready for plugin injection.
- */
-export class BotSwarmData {
-  botOptions?: ClientOptions;
-  injectAllowed = false;
-}
-
-/**
- * @typedef {Object} SwarmBot - A bot in a swarm.
- * @property {BotSwarmData} [swarmOptions] - The bot's BotSwarmData.
- */
-export interface SwarmBot extends Bot {
-  swarmOptions?: BotSwarmData
-}
-
-/**
- * @typedef {Partial<ClientOptions>} AuthenticationOptions - Authentication options for swarms.
- */
-export type AuthenticationOptions = Partial<ClientOptions>;
-
-/**
- * @typedef {Partial<ClientOptions>} ConnectionOptions - Connection options for swarms.
- */
-export type ConnectionOptions = Partial<ClientOptions>;
+export default new MyWorker()
