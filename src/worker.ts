@@ -1,3 +1,4 @@
+import * from './types.ts';
 
 export class SwarmWorker {
   bots: SwarmBot[];
@@ -5,10 +6,12 @@ export class SwarmWorker {
   options: Partial<ClientOptions>;
   requirePlugin = createRequire(import.meta.url);
 
-  constructor (options: Partial<ClientOptions>) {
-    super();
+  constructor() {
     this.bots = [];
     this.plugins = {};
+  }
+  
+  async initialize (options: Partial<ClientOptions>) {
     this.options = options;
 
     this.on('error', (bot, ...errors) => console.error(...errors));
@@ -89,4 +92,4 @@ export class SwarmWorker {
   }
 }
 
-export default new MyWorker()
+export default new SwarmWorker();
