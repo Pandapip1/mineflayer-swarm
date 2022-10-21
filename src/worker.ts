@@ -1,64 +1,50 @@
-import * from './types.ts';
+import { createRequire } from 'node:module';
+import { EventEmitter } from 'node:stream';
+import { createBot } from 'mineflayer';
+import { ClientOptions } from 'minecraft-protocol';
+import { SwarmBot, BotSwarmData } from './types';
 
-export class SwarmWorker {
-  bots: SwarmBot[];
-  plugins: { [key: string]: Plugin };
-  options: Partial<ClientOptions>;
+export class SwarmWorker extends EventEmitter {
+  bot?: SwarmBot;
+  options: any extends ClientOptions;
   requirePlugin = createRequire(import.meta.url);
 
   constructor() {
-    this.bots = [];
-    this.plugins = {};
+    super();
   }
   
-  async initialize (options: Partial<ClientOptions>) {
-    this.options = options;
-
-    this.on('error', (bot, ...errors) => console.error(...errors));
-
-    // remove disconnected members
-    this.on('end', bot => {
-      this.bots = this.bots.filter(x => bot.username !== x.username);
-    });
-
-    // plugin injection
-    this.on('inject_allowed', bot => {
-      bot.swarmOptions.injectAllowed = true;
-      for (const name in this.plugins) {
-        this.plugins[name](bot, bot.swarmOptions.botOptions);
-      }
-    });
-  }
-
-  /**
-   * Check for the presence or absence of a member with a given name.
-   * @param {AuthenticationOptions} auth - The authentication information to create the swarm member with.
-   */
-  addSwarmMember (auth: AuthenticationOptions): void {
+  async initialize (options: ClientOptions) {
     // fix for microsoft auth
-    if (auth.auth === 'microsoft') auth.authTitle = '00000000402b5328';
+    if (options.auth === 'microsoft') options.authTitle = '00000000402b5328';
+
     // create bot and save its options
-    const botOptions: Partial<ClientOptions> = { ...this.options, ...auth };
-    const bot: SwarmBot = createBot(botOptions as ClientOptions);
+    const bot: SwarmBot = createBot(options);
+    this.options = options;
     bot.swarmOptions = new BotSwarmData();
-    bot.swarmOptions.botOptions = botOptions as ClientOptions;
+    bot.swarmOptions.botOptions = options;
+
     // monkey patch bot.emit
     const oldEmit = bot.emit;
     bot.emit = (event, ...args) => {
-      this.emit(event, this, ...args);
+      this.emit(event, bot, ...args);
       return oldEmit(event, ...args);
     };
+
     // add bot to swarm
-    this.bots.push(bot);
+    this.bot = bot;
+
+    // remove disconnected members
+    this.on('end', bot => {
+      process.exit(0);
+    });
   }
 
   /**
    * Check for the presence or absence of a member with a given name.
-   * @param {string} username - The username to query for.
-   * @returns {boolean} Returns true if the given username is contained in the swarm, otherwise returns false.
+   * @returns {string} The bot's username
    */
-  isSwarmMember (username: string): boolean {
-    return this.bots.some(bot => bot.username === username);
+  username (): string | undefined {
+    return this?.bot?.username;
   }
 
   /**
@@ -73,22 +59,17 @@ export class SwarmWorker {
       return;
     }
 
-    this.plugins[name] = plugin;
-
-    this.bots.forEach(bot => {
-      if (bot.swarmOptions?.botOptions !== undefined && bot.swarmOptions?.injectAllowed) {
-        plugin(bot, bot.swarmOptions.botOptions);
-      }
-    });
-  }
-
-  /**
-   * Check for the presence or absence of a plugin with a given name.
-   * @param {string} name - The plugin to query for.
-   * @returns {boolean} Returns true if the given plugin is loaded in the swarm, otherwise returns false.
-   */
-  hasPlugin (name: string): boolean {
-    return Object.keys(this.plugins).includes(name);
+    this.plugins.push(name);
+    if (this.bot?.swarmOptions.injectAllowed) {
+      plugin()
+    } else {
+      this.bot.on('inject_allowed', {
+        bot.swarmOptions.injectAllowed = true;
+        for (const name in this.plugins) {
+          this.plugins.map(this.requirePlugin).forEach(pl => pl(bot, bot.swarmOptions.botOptions));
+        }
+      });
+    }
   }
 }
 
