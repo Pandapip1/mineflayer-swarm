@@ -40,7 +40,7 @@
   "devDependencies": {
     "@types/node": "18.11.9",
     "eslint": "8.27.0",
-    "jest": "29.2.2",
+    "jest": "29.3.0",
     "mineflayer-swarm": "file:.",
     "typedoc": "0.23.20",
     "typedoc-plugin-markdown": "3.13.6",
