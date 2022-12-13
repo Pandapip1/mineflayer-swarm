@@ -1,8 +1,9 @@
-import { createBot, Bot } from 'mineflayer';
 import { ClientOptions } from 'minecraft-protocol';
-import EventEmitter from 'eventemitter3';
-import assert from 'assert';
-import { createRequire } from 'node:module';
+import { createThreadPool } from 'thread-puddle';
+import { createRequire } from 'module';
+import { ConnectionOptions, AuthenticationOptions, Puddle } from './types';
+import { ModifiedBot } from './worker';
+import { EventEmitter } from 'eventemitter3';
 
 /**
  * Creates a new Swarm object. Bots are removed from the swarm on disconnect.
@@ -10,12 +11,12 @@ import { createRequire } from 'node:module';
  * @param {AuthenticationOptions[]} [auths] - A list of initial authentication options for each member of the swarm. Defaults to no members.
  * @returns {Swarm} A newly created swarm.
  */
-export function createSwarm (options: ConnectionOptions, auths: AuthenticationOptions[] = []): Swarm {
+export async function createSwarm (options: ConnectionOptions, auths: AuthenticationOptions[] = []): Promise<Swarm> {
   // create swarm object
   const swarm = new Swarm(options);
 
   // init swarm
-  auths.forEach(swarm.addSwarmMember);
+  await Promise.all(auths.map(swarm.addSwarmMember));
 
   return swarm;
 }
@@ -25,51 +26,33 @@ export function createSwarm (options: ConnectionOptions, auths: AuthenticationOp
  * @see createSwarm to create a swarm object.
  */
 export class Swarm extends EventEmitter {
-  bots: SwarmBot[];
-  plugins: { [key: string]: Plugin };
   options: Partial<ClientOptions>;
+  bots: Array<Puddle<ModifiedBot>> = [];
+  plugins: string[] = [];
   requirePlugin = createRequire(import.meta.url);
 
   constructor (options: Partial<ClientOptions>) {
     super();
-    this.bots = [];
-    this.plugins = {};
     this.options = options;
-
-    this.on('error', (bot, ...errors) => console.error(...errors));
-
-    // remove disconnected members
-    this.on('end', bot => {
-      this.bots = this.bots.filter(x => bot.username !== x.username);
-    });
-
-    // plugin injection
-    this.on('inject_allowed', bot => {
-      bot.swarmOptions.injectAllowed = true;
-      for (const name in this.plugins) {
-        this.plugins[name](bot, bot.swarmOptions.botOptions);
-      }
-    });
   }
 
   /**
    * Check for the presence or absence of a member with a given name.
    * @param {AuthenticationOptions} auth - The authentication information to create the swarm member with.
    */
-  addSwarmMember (auth: AuthenticationOptions): void {
-    // fix for microsoft auth
-    if (auth.auth === 'microsoft') auth.authTitle = '00000000402b5328';
+  async addSwarmMember (auth: AuthenticationOptions): Promise<void> {
     // create bot and save its options
-    const botOptions: Partial<ClientOptions> = { ...this.options, ...auth };
-    const bot: SwarmBot = createBot(botOptions as ClientOptions);
-    bot.swarmOptions = new BotSwarmData();
-    bot.swarmOptions.botOptions = botOptions as ClientOptions;
-    // monkey patch bot.emit
-    const oldEmit = bot.emit;
-    bot.emit = (event, ...args) => {
-      this.emit(event, this, ...args);
-      return oldEmit(event, ...args);
-    };
+    const botOptions = { ...this.options, ...auth } as ClientOptions; // eslint-disable-line @typescript-eslint/consistent-type-assertions
+    const bot = await createThreadPool<ModifiedBot>('./worker', {
+      size: 1,
+      workerOptions: {
+        workerData: botOptions
+      }
+    });
+
+    // Load plugins
+    await Promise.all(this.plugins.map(async plugin => await bot.loadPluginByName(plugin)));
+
     // add bot to swarm
     this.bots.push(bot);
   }
@@ -79,29 +62,23 @@ export class Swarm extends EventEmitter {
    * @param {string} username - The username to query for.
    * @returns {boolean} Returns true if the given username is contained in the swarm, otherwise returns false.
    */
-  isSwarmMember (username: string): boolean {
-    return this.bots.some(bot => bot.username === username);
+  async isSwarmMember (username: string): Promise<boolean> {
+    return (await Promise.all(this.bots.map(async bot => bot.getProperty('username')))).some(name => name === username);
   }
 
   /**
    * Load a plugin
-   * @param {string} name - The plugin to add.
+   * @param {string} plugin - The plugin to add.
    * @returns {boolean} Returns true if the given plugin is loaded in the swarm, otherwise returns false.
    */
-  loadPlugin (name: string): void {
-    let plugin: Plugin = this.requirePlugin(name);
-
-    if (this.hasPlugin(name)) {
+  async loadPlugin (plugin: string): Promise<void> { // eslint-disable-line @typescript-eslint/no-explicit-any
+    if (await this.hasPlugin(plugin)) {
       return;
     }
 
-    this.plugins[name] = plugin;
+    this.plugins.push(plugin);
 
-    this.bots.forEach(bot => {
-      if (bot.swarmOptions?.botOptions !== undefined && bot.swarmOptions?.injectAllowed) {
-        plugin(bot, bot.swarmOptions.botOptions);
-      }
-    });
+    await Promise.all(this.bots.map(async bot => await bot.loadPluginByName(plugin)));
   }
 
   /**
@@ -109,7 +86,7 @@ export class Swarm extends EventEmitter {
    * @param {string} name - The plugin to query for.
    * @returns {boolean} Returns true if the given plugin is loaded in the swarm, otherwise returns false.
    */
-  hasPlugin (name: string): boolean {
+  async hasPlugin (name: string): Promise<boolean> {
     return Object.keys(this.plugins).includes(name);
   }
 }
