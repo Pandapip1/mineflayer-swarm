@@ -32,7 +32,7 @@ export function createSwarm (options: ConnectionOptions, auths: AuthenticationOp
  */
 export class Swarm extends EventEmitter {
   bots: SwarmBot[];
-  plugins: { [key: string]: Plugin };
+  plugins: Record<string, Plugin>;
   options: Partial<ClientOptions>;
   requirePlugin = createRequire(import.meta.url);
 
