@@ -42,7 +42,7 @@ export class Swarm extends EventEmitter {
     this.plugins = {};
     this.options = options;
 
-    this.on('error', (bot, ...errors) => console.error(...errors));
+    this.on('error', (bot, ...errors) => { console.error(...errors); });
 
     // remove disconnected members
     this.on('end', bot => {
