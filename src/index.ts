@@ -1,8 +1,10 @@
-import { createBot, Bot } from 'mineflayer';
+import { createBot } from 'mineflayer';
 import { ClientOptions } from 'minecraft-protocol';
 import EventEmitter from 'eventemitter3';
 import assert from 'assert';
 import { createRequire } from 'node:module';
+
+import type { Bot } from 'mineflayer';
 
 if (typeof process !== 'undefined' && parseInt(process.versions.node.split('.')[0]) < 16) {
   console.error('Your node version is currently', process.versions.node);
