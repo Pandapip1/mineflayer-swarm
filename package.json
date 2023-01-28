@@ -31,7 +31,7 @@
   "homepage": "https://github.com/Pandapip1/mineflayer-swarm#readme",
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^5.30.5",
-    "eslint-config-standard-with-typescript": "^32.0.0",
+    "eslint-config-standard-with-typescript": "^33.0.0",
     "eventemitter3": "^5.0.0",
     "minecraft-protocol": "^1.30.0",
     "mineflayer": "git+https://github.com/PrismarineJS/mineflayer.git",
