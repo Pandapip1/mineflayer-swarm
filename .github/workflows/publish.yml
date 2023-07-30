@@ -33,7 +33,7 @@ jobs:
       
     - id: publish_npm
       name: Publish to NPM Registry
-      uses: JS-DevTools/npm-publish@v1
+      uses: JS-DevTools/npm-publish@v2
       with:
         token: ${{ secrets.NPM_AUTH_TOKEN }}
     
@@ -47,7 +47,7 @@ jobs:
 
     - id: publish_gh
       name: Publish to GitHub Registry
-      uses: JS-DevTools/npm-publish@v1
+      uses: JS-DevTools/npm-publish@v2
       with:
         registry: https://npm.pkg.github.com
         token: ${{ secrets.GITHUB_TOKEN }}
