@@ -43,7 +43,7 @@
     "jest": "29.7.0",
     "mineflayer-swarm": "file:.",
     "typedoc": "0.25.13",
-    "typedoc-plugin-markdown": "3.17.1",
+    "typedoc-plugin-markdown": "4.2.9",
     "typescript": "5.4.5"
   }
 }
