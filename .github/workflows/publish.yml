@@ -11,7 +11,7 @@ jobs:
     steps:
     - id: checkout
       name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
       
     - id: setup_node
       name: Set up Node.js
